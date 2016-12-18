@@ -67,7 +67,7 @@ public class Connector {
 		
 		System.out.println("Processed " + processedNodes + " nodes");
 		
-		processDOI(source, references);
+		processDOI(source, relationship, references);
 	}
 	
 	private void loadDOI(GraphKey key, String ref, Map<String, Set<GraphKey>> references) {
@@ -80,7 +80,7 @@ public class Connector {
 		}
 	}
 	
-	private void processDOI(String source, Map<String, Set<GraphKey>> references) throws SQLException {
+	private void processDOI(String source, String relationship, Map<String, Set<GraphKey>> references) throws SQLException {
 		Graph graph = new Graph();
 		
 		graph.addSchema(new GraphSchema(source, GraphUtils.PROPERTY_KEY, true));
@@ -101,11 +101,11 @@ public class Connector {
 					GraphNode authorNode = author.toNode(work);
 					
 					graph.addNode(authorNode);
-					graph.addRelationship(createRelationship(authorNode.getKey(), workNode.getKey()));
+					graph.addRelationship(createRelationship(relationship, authorNode.getKey(), workNode.getKey()));
 				}
 				
 				for (GraphKey key : entry.getValue()) {
-					graph.addRelationship(createRelationship(workNode.getKey(), key));
+					graph.addRelationship(createRelationship(relationship, workNode.getKey(), key));
 				}
 				
 				if (graph.getObjectsCount() >= 1000) {
@@ -127,7 +127,7 @@ public class Connector {
 		neo4j.printStatistics(System.out);
 	}
 	
-	private GraphRelationship createRelationship(GraphKey a, GraphKey b) { 
+	private GraphRelationship createRelationship(String relationship, GraphKey a, GraphKey b) { 
 		return GraphRelationship.builder()
 				.withRelationship(GraphUtils.RELATIONSHIP_RELATED_TO)
 				.withStart(a)
